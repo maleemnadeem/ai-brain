@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Message Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-gradient-to-b from-slate-50 to-white text-slate-900">
+    <div class="mx-auto max-w-6xl px-4 py-10">
+      <header class="mb-8 flex flex-col gap-2">
+        <div class="inline-flex items-center gap-2">
+          <span class="rounded-full bg-indigo-600 px-3 py-1 text-sm font-semibold text-white">Knowledge</span>
+          <span class="rounded-full bg-slate-900/90 px-3 py-1 text-sm font-semibold text-white">Brand voice</span>
+          <span class="rounded-full bg-emerald-600 px-3 py-1 text-sm font-semibold text-white">Drafting</span>
+        </div>
+        <h1 class="text-3xl font-bold tracking-tight md:text-4xl">On-brand replies in seconds</h1>
+        <p class="max-w-3xl text-slate-600">
+          Upload a simple <span class="font-medium">.txt</span> file with your company guidelines and FAQs (one per line).
+          Then generate polished replies that stay consistent with your policies and tone.
+        </p>
+      </header>
+
+      <div id="toast" class="pointer-events-none fixed right-4 top-4 hidden">
+        <div
+          id="toastInner"
+          class="pointer-events-auto rounded-xl border border-slate-200 bg-white/90 px-4 py-3 shadow-xl backdrop-blur"
+        >
+          <div class="flex items-start gap-3">
+            <div id="toastDot" class="mt-1.5 h-2.5 w-2.5 rounded-full bg-emerald-500"></div>
+            <div>
+              <div id="toastTitle" class="text-sm font-semibold">Done</div>
+              <div id="toastMsg" class="text-sm text-slate-600">Success.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main class="grid grid-cols-1 gap-6">
+        <!-- Section 1 -->
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div class="max-w-2xl">
+              <h2 class="text-lg font-semibold">1) Add your guidelines</h2>
+              <p class="mt-1 text-sm text-slate-600">
+                Include policies, pricing notes, key facts, and preferred phrasing. Use
+                <span class="font-medium">one guideline per line</span> for best results.
+              </p>
+            </div>
+            <div class="flex flex-col gap-3 md:flex-row md:items-center">
+              <input
+                id="fileInput"
+                type="file"
+                accept=".txt,text/plain"
+                class="block w-full cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:bg-slate-100 md:w-[360px]"
+              />
+              <button
+                id="trainBtn"
+                class="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Train Brain
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <span class="rounded-full bg-slate-100 px-3 py-1">Tip: add policies, pricing, FAQs, and your preferred wording</span>
+            <span id="brainStatus" class="rounded-full bg-slate-100 px-3 py-1">No guidelines added yet</span>
+          </div>
+        </section>
+
+        <!-- Section 2 -->
+        <section
+          id="draftSection"
+          class="hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+        >
+          <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div class="max-w-2xl">
+              <h2 class="text-lg font-semibold">2) Create a reply</h2>
+              <p class="mt-1 text-sm text-slate-600">
+                Describe the situation and choose a style. We’ll pull in the most relevant guidelines and produce a
+                ready-to-send draft.
+              </p>
+            </div>
+            <div class="flex flex-col gap-3 md:flex-row md:items-center">
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-slate-700" for="messageType">Message Type</label>
+                <select
+                  id="messageType"
+                  class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm"
+                >
+                  <option>Email</option>
+                  <option>WhatsApp Message</option>
+                </select>
+              </div>
+              <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-slate-700" for="tone">Tone</label>
+                <select id="tone" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
+                  <option>Formal</option>
+                  <option>Informal</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 gap-4">
+            <div>
+              <label class="mb-2 block text-sm font-medium text-slate-700" for="scenario">
+                What do you want to say?
+              </label>
+              <textarea
+                id="scenario"
+                rows="5"
+                class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-100"
+                placeholder="Example: A customer asked for a discount and wants a quick reply. Respond politely, explain our policy, and offer an alternative."
+              ></textarea>
+            </div>
+            <div class="flex items-center justify-end">
+              <button
+                id="draftBtn"
+                class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Generate draft
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 3 -->
+        <section id="resultsSection" class="hidden">
+          <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div class="flex items-center justify-between">
+                <h3 class="text-base font-semibold">Guidelines used</h3>
+                <span id="retrievalCount" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+                  >0</span
+                >
+              </div>
+              <ul id="retrievedList" class="mt-4 space-y-3 text-sm text-slate-700"></ul>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div class="flex items-center justify-between">
+                <h3 class="text-base font-semibold">Draft reply</h3>
+                <button
+                  id="copyBtn"
+                  class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled
+                >
+                  Copy
+                </button>
+              </div>
+              <pre
+                id="draftOutput"
+                class="mt-4 whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 shadow-sm"
+              ></pre>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="mt-10 text-sm text-slate-500">
+        Keep your customer communication consistent, clear, and on-brand.
+      </footer>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      const toast = $("toast");
+      const toastTitle = $("toastTitle");
+      const toastMsg = $("toastMsg");
+      const toastDot = $("toastDot");
+      let toastTimer = null;
+
+      function showToast({ title, message, type = "success" }) {
+        toastTitle.textContent = title;
+        toastMsg.textContent = message;
+        toastDot.className =
+          "mt-1.5 h-2.5 w-2.5 rounded-full " + (type === "error" ? "bg-rose-500" : "bg-emerald-500");
+
+        toast.classList.remove("hidden");
+        toast.classList.add("block");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toast.classList.add("hidden");
+          toast.classList.remove("block");
+        }, 3200);
+      }
+
+      function setBusy(btn, busyText, isBusy) {
+        btn.disabled = isBusy;
+        btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
+        btn.textContent = isBusy ? busyText : btn.dataset.originalText;
+      }
+
+      function escapeHtml(str) {
+        return str
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      async function trainBrain() {
+        const file = $("fileInput").files?.[0];
+        if (!file) {
+          showToast({ title: "Missing file", message: "Choose a .txt file first.", type: "error" });
+          return;
+        }
+
+        const trainBtn = $("trainBtn");
+        setBusy(trainBtn, "Training...", true);
+
+        try {
+          const fd = new FormData();
+          fd.append("file", file);
+
+          const res = await fetch("/api/upload", { method: "POST", body: fd });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) throw new Error(data.error || "Upload failed.");
+
+          $("draftSection").classList.remove("hidden");
+          $("brainStatus").textContent = `Guidelines ready: ${data.ingested_lines} lines added`;
+
+          showToast({
+            title: "Guidelines saved",
+            message: `${data.ingested_lines} lines added. You can generate replies now.`,
+            type: "success",
+          });
+        } catch (err) {
+          showToast({ title: "Upload error", message: err.message || "Something went wrong.", type: "error" });
+        } finally {
+          setBusy(trainBtn, "Training...", false);
+        }
+      }
+
+      function renderRetrieved(chunks) {
+        const list = $("retrievedList");
+        list.innerHTML = "";
+        const safeChunks = Array.isArray(chunks) ? chunks : [];
+        $("retrievalCount").textContent = `${safeChunks.length}`;
+        for (const chunk of safeChunks) {
+          const li = document.createElement("li");
+          li.className = "rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm";
+          li.innerHTML = `<div class="text-xs font-semibold text-slate-500 mb-1">Reference</div>
+                          <div class="text-sm text-slate-800">${escapeHtml(String(chunk))}</div>`;
+          list.appendChild(li);
+        }
+      }
+
+      async function draftMessage() {
+        const prompt = $("scenario").value.trim();
+        const message_type = $("messageType").value;
+        const tone = $("tone").value;
+
+        if (!prompt) {
+          showToast({ title: "Missing scenario", message: "Write a scenario/request first.", type: "error" });
+          return;
+        }
+
+        const draftBtn = $("draftBtn");
+        const copyBtn = $("copyBtn");
+        copyBtn.disabled = true;
+        setBusy(draftBtn, "Thinking...", true);
+
+        $("resultsSection").classList.add("hidden");
+        $("draftOutput").textContent = "";
+        $("retrievedList").innerHTML = "";
+        $("retrievalCount").textContent = "0";
+
+        try {
+          const res = await fetch("/api/draft", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt, message_type, tone }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) throw new Error(data.error || "Drafting failed.");
+
+          renderRetrieved(data.retrieved_chunks);
+          $("draftOutput").textContent = data.draft || "";
+          $("resultsSection").classList.remove("hidden");
+          copyBtn.disabled = !(data.draft || "").trim();
+
+          showToast({ title: "Draft ready", message: "Your reply is ready to review and send.", type: "success" });
+        } catch (err) {
+          showToast({ title: "Draft error", message: err.message || "Something went wrong.", type: "error" });
+        } finally {
+          setBusy(draftBtn, "Thinking...", false);
+        }
+      }
+
+      async function copyDraft() {
+        const text = $("draftOutput").textContent || "";
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast({ title: "Copied", message: "Draft copied to clipboard.", type: "success" });
+        } catch {
+          showToast({ title: "Copy failed", message: "Copy manually from the draft box.", type: "error" });
+        }
+      }
+
+      $("trainBtn").addEventListener("click", trainBrain);
+      $("draftBtn").addEventListener("click", draftMessage);
+      $("copyBtn").addEventListener("click", copyDraft);
+    </script>
+  </body>
+</html>
+
